@@ -1,5 +1,5 @@
 # elastalert-ocp
-##Run Elastalert in Openshift Container Platform
+Run [Elastalert](https://github.com/Yelp/elastalert) in Openshift Container Platform
 
 Run below commands as **cluster-admin** user
 ```
