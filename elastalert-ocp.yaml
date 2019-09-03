@@ -1,0 +1,353 @@
+apiVersion: v1
+items:
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    labels:
+      app: elastalert-ocp
+    name: elastalert-ocp
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      app: elastalert-ocp
+      deploymentconfig: elastalert-ocp
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: elastalert-ocp
+          deploymentconfig: elastalert-ocp
+      spec:
+        containers:
+        - image: quay.io/jstakun/elastalert-ocp:v0.2.1
+          imagePullPolicy: IfNotPresent
+          name: elastalert-ocp
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /opt/elastalert/config
+            name: elastalert-ocp-volume-1
+          - mountPath: /opt/elastalert/rules
+            name: elastalert-ocp-volume-2
+          - mountPath: /etc/es/keys
+            name: elasticsearch
+            readOnly: true
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: config-cm
+          name: elastalert-ocp-volume-1
+        - configMap:
+            defaultMode: 420
+            name: rules-alerting
+          name: elastalert-ocp-volume-2
+        - name: elasticsearch
+          secret:
+            defaultMode: 420
+            secretName: elasticsearch
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - elastalert-ocp
+        from:
+          kind: ImageStreamTag
+          name: elastalert-ocp:v0.2.1
+          namespace: openshift-elastalert
+      type: ImageChange
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftWebConsole
+    labels:
+      app: mailman
+    name: mailman
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      app: mailman
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftWebConsole
+        creationTimestamp: null
+        labels:
+          app: mailman
+      spec:
+        containers:
+        - env:
+          - name: PORT
+            value: "10025"
+          image: quay.io/jstakun/fake-smtp:latest
+          imagePullPolicy: IfNotPresent
+          name: mailman
+          ports:
+          - containerPort: 10025
+            protocol: TCP
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 8443
+            protocol: TCP
+          - containerPort: 8778
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/mail
+            name: mailman-1
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: mailman-1
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - mailman
+        from:
+          kind: ImageStreamTag
+          name: mailman:latest
+          namespace: openshift-elastalert
+        lastTriggeredImage: quay.io/jstakun/fake-smtp@sha256:4494354dd70709390b997acfe41b5107a275a4a3aaab6f91dea3a3955d3c19dd
+      type: ImageChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    labels:
+      app: elastalert-ocp
+    name: elastalert-ocp
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: elastalert-ocp
+      deploymentconfig: elastalert-ocp
+    sessionAffinity: None
+    type: ClusterIP
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftWebConsole
+    labels:
+      app: mailman
+    name: mailman
+  spec:
+    ports:
+    - name: 10025-tcp
+      port: 10025
+      protocol: TCP
+      targetPort: 10025
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    - name: 8443-tcp
+      port: 8443
+      protocol: TCP
+      targetPort: 8443
+    - name: 8778-tcp
+      port: 8778
+      protocol: TCP
+      targetPort: 8778
+    selector:
+      deploymentconfig: mailman
+    sessionAffinity: None
+    type: ClusterIP
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    name: elastalert-ocp
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: quay.io/jstakun/elastalert-ocp
+      generation: 5
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: Source
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: quay.io/jstakun/elastalert-ocp:v0.1.39
+      generation: 4
+      importPolicy: {}
+      name: v0.1.39
+      referencePolicy:
+        type: Source
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: quay.io/jstakun/elastalert-ocp
+      generation: 6
+      importPolicy: {}
+      name: v0.2.1
+      referencePolicy:
+        type: Source
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/image.dockerRepositoryCheck: "2019-08-27T16:01:01Z"
+    labels:
+      app: mailman
+    name: mailman
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations:
+        openshift.io/generated-by: OpenShiftWebConsole
+        openshift.io/imported-from: quay.io/jstakun/fake-smtp:latest
+      from:
+        kind: DockerImage
+        name: quay.io/jstakun/fake-smtp:latest
+      generation: 3
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: Source
+- apiVersion: v1
+  data:
+    config.yaml: |
+      #This is the folder that contains the rule yaml files
+      # Any .yaml file will be loaded as a rule
+      rules_folder: rules
+
+      scan_subdirectories: false
+
+      # How often ElastAlert will query elasticsearch
+      # The unit can be anything from weeks to seconds
+      run_every:
+        minutes: 1
+
+      # ElastAlert will buffer results from the most recent
+      # period of time, in case some log sources are not in real time
+      buffer_time:
+        minutes: 15
+
+      # The elasticsearch service for metadata writeback
+      # Note that every rule can have it's own elasticsearch host
+      es_host: elasticsearch.openshift-logging.svc.cluster.local
+
+      # The elasticsearch port
+      es_port: 9200
+
+      # The index on es_host which is used for metadata storage
+      # This can be a unmapped index, but it is recommended that you run
+      # elastalert-create-index to set a mapping
+      writeback_index: elastalert_status
+
+      # If an alert fails for some reason, ElastAlert will retry
+      # sending the alert until this time period has elapsed
+      alert_time_limit:
+        days: 2
+
+      use_ssl: True
+      verify_certs: True
+
+      # The secrets from the curator must be mounted!
+      ca_certs: /etc/es/keys/admin-ca
+      client_cert: /etc/es/keys/admin-cert
+      client_key: /etc/es/keys/admin-key
+
+      # smpt settings
+      email: 'admin@localhost'
+      smpt_host: 'mailman'
+      smtp_port: 10025
+      from_addr: 'dev@localhost'
+  kind: ConfigMap
+  metadata:
+    name: config-cm
+- apiVersion: v1
+  data:
+    my-rules.yaml: |
+      me: example alert
+      type: frequency
+      index: project.hello-world.*
+      num_events: 1
+
+      timeframe:
+          minutes: 1
+
+      filter:
+      - query:
+          query_string:
+            query: "message: welcome-php"
+
+      #SMTP
+      smtp_host: 'mailman'
+      smtp_port: 10025
+      #
+      from_addr: 'devel@localhost'
+      #
+      ## (Required)
+      ## The alert is use when a match is found
+      alert:
+      - "email"
+      #
+      email:
+      - "admin@localhost"
+      #
+  kind: ConfigMap
+  metadata:
+    name: rules-alerting
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""
