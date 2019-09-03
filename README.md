@@ -5,15 +5,18 @@ Run below commands as **cluster-admin** user
 ```
 oc adm new-project openshift-elastalert
 oc project openshift-elastalert
+
+#we need to copy this secret to access elasticsearch from elastalert
 oc get secret elasticsearch -n openshift-logging -o yaml --export > es-secret.yaml
 oc create -f es-secret.yaml
+
 wget https://raw.githubusercontent.com/jstakun/elastalert-ocp/master/elastalert-ocp.yaml
 #this commands will pull images from quay.io registry, make sure to whitelist quay.io in your cluster following the docs: https://docs.openshift.com/container-platform/4.1/openshift_images/image-configuration.html#images-configuration-insecure_image-configuration
 oc create -f elastalert-ocp.yaml
 ```
-This should provision for you sample fully functional elastsearch pod with fakesmtp mail server pod. 
+This should provision for you sample fully functional elastsearch pod with fake smtp mail server pod. 
 
-Verify it is up and running
+Verify it is up and running:
 ```
 $ oc get pods | grep Running
 elastalert-ocp-1-vmm7d    1/1     Running     0          4m32s
@@ -38,7 +41,7 @@ INFO:elastalert:Queried rule rules/my-rules from 2019-09-03 00:00 UTC to 2019-09
 INFO:elastalert:Ran rules/my-rules from 2019-09-03 00:00 UTC to 2019-09-03 12:35 UTC: 0 query hits (0 already seen), 0 matches, 0 alerts sent
 ```
 
-Now you can adjust configuration to your need:
+Now you can adjust configuration to your needs:
 
 1. Elastalert configuration:
 ```
