@@ -14,9 +14,9 @@ wget https://raw.githubusercontent.com/jstakun/elastalert-ocp/master/elastalert-
 #this commands will pull images from quay.io registry, make sure to whitelist quay.io in your cluster following the docs: https://docs.openshift.com/container-platform/4.1/openshift_images/image-configuration.html#images-configuration-insecure_image-configuration
 oc create -f elastalert-ocp.yaml
 ```
-This should provision for you sample fully functional elastsearch pod with fake smtp mail server pod. 
+This should provision for you sample fully functional elastalert pod with fake smtp mail server pod. 
 
-Verify it is up and running:
+Verify if it is up and running:
 ```
 $ oc get pods | grep Running
 elastalert-ocp-1-vmm7d    1/1     Running     0          4m32s

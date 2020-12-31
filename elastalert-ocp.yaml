@@ -233,10 +233,19 @@ items:
     - annotations: null
       from:
         kind: DockerImage
-        name: quay.io/jstakun/elastalert-ocp
+        name: quay.io/jstakun/elastalert-ocp:v0.2.1
       generation: 6
       importPolicy: {}
       name: v0.2.1
+      referencePolicy:
+        type: Source
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: quay.io/jstakun/elastalert-ocp:v0.2.4
+      generation: 7
+      importPolicy: {}
+      name: v0.2.4
       referencePolicy:
         type: Source
 - apiVersion: image.openshift.io/v1
