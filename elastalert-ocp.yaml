@@ -34,7 +34,7 @@ items:
           deploymentconfig: elastalert-ocp
       spec:
         containers:
-        - image: quay.io/jstakun/elastalert-ocp:v0.2.1
+        - image: quay.io/jstakun/elastalert-ocp:v0.2.4
           imagePullPolicy: IfNotPresent
           name: elastalert-ocp
           ports:
@@ -78,7 +78,7 @@ items:
         - elastalert-ocp
         from:
           kind: ImageStreamTag
-          name: elastalert-ocp:v0.2.1
+          name: elastalert-ocp:v0.2.4
           namespace: openshift-elastalert
       type: ImageChange
 - apiVersion: apps.openshift.io/v1
@@ -153,7 +153,6 @@ items:
           kind: ImageStreamTag
           name: mailman:latest
           namespace: openshift-elastalert
-        lastTriggeredImage: quay.io/jstakun/fake-smtp@sha256:4494354dd70709390b997acfe41b5107a275a4a3aaab6f91dea3a3955d3c19dd
       type: ImageChange
 - apiVersion: v1
   kind: Service
@@ -251,8 +250,6 @@ items:
 - apiVersion: image.openshift.io/v1
   kind: ImageStream
   metadata:
-    annotations:
-      openshift.io/image.dockerRepositoryCheck: "2019-08-27T16:01:01Z"
     labels:
       app: mailman
     name: mailman
