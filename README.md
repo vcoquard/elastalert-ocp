@@ -15,7 +15,7 @@ $ oc create -f elastalert-ocp.yaml
 
 #we need to get elastalert service account token and paste it to cm-config es_bearer variable value
 $ oc sa get-token elastalert 
-$ oc edit configmap cm-config
+$ oc edit configmap config-cm
    ...
    es_bearer: <ELASTALERT_SA_TOKEN>
    ...
@@ -40,26 +40,26 @@ sh-4.2$ es_seed_acl
 Verify both pods are up and running:
 ```
 $ oc get pods | grep Running
-elastalert-ocp-1-vmm7d    1/1     Running     0          4m32s
+elastalert-ocp-1-6nk5k    1/1     Running     0          4m32s
 mailman-1-fhsnq           1/1     Running     0          4m34s
 
-$ oc logs elastalert-ocp-1-vmm7d
-Elastic Version: 5.6.13
-Reading Elastic 5 index mappings:
-Reading index mapping 'es_mappings/5/silence.json'
-Reading index mapping 'es_mappings/5/elastalert_status.json'
-Reading index mapping 'es_mappings/5/elastalert.json'
-Reading index mapping 'es_mappings/5/past_elastalert.json'
-Reading index mapping 'es_mappings/5/elastalert_error.json'
-New index elastalert_status created
-Done!
+$ oc logs -f elastalert-ocp-1-6nk5k
+Checking Elastic Version
+Elastic Version: 6.8.1
+Reading Elastic 6 index mappings:
+Reading index mapping 'es_mappings/6/silence.json'
+Reading index mapping 'es_mappings/6/elastalert_status.json'
+Reading index mapping 'es_mappings/6/elastalert.json'
+Reading index mapping 'es_mappings/6/past_elastalert.json'
+Reading index mapping 'es_mappings/6/elastalert_error.json'
+Index elastalert_status already exists. Skipping index creation.
 1 rules loaded
 INFO:elastalert:Starting up
 INFO:elastalert:Disabled rules are: []
-INFO:elastalert:Sleeping for 59.999924 seconds
-INFO:elastalert:Queried rule rules/my-rules from 2019-09-03 00:00 UTC to 2019-09-03 00:15 UTC: 0 / 0 hits
+INFO:elastalert:Sleeping for 59.999889 seconds
+INFO:elastalert:Queried rule rules/my-rules from 2021-01-08 00:00 UTC to 2021-01-08 00:15 UTC: 0 / 0 hits
 ...
-INFO:elastalert:Ran rules/my-rules from 2019-09-03 00:00 UTC to 2019-09-03 12:35 UTC: 0 query hits (0 already seen), 0 matches, 0 alerts sent
+INFO:elastalert:Ran rules/my-rules from 2021-01-08 00:00 UTC to 2021-01-08 15:43 UTC: 0 query hits (0 already seen), 0 matches, 0 alerts sent
 ```
 
 Now you can adjust configuration to your needs:
