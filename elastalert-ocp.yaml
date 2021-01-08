@@ -326,7 +326,7 @@ items:
 - apiVersion: v1
   data:
     my-rules.yaml: |
-      me: example alert
+      name: example alert
       type: frequency
       index: app-*
       num_events: 1
