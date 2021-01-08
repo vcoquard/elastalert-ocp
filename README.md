@@ -12,7 +12,7 @@ $ oc get secret elasticsearch -n openshift-logging -o yaml --export | oc apply -
 $ wget https://raw.githubusercontent.com/jstakun/elastalert-ocp/master/elastalert-ocp.yaml
 #this commands will pull images from quay.io registry, make sure to whitelist quay.io in your cluster following the docs: https://docs.openshift.com/container-platform/4.4/openshift_images/image-configuration.html#images-configuration-insecure_image-configuration
 $ oc create -f elastalert-ocp.yaml
-```
+
 #we need to get elastalert service account token and paste it to cm-config es_bearer variable value
 $ oc sa get-token elastalert 
 $ oc edit configmap cm-config
