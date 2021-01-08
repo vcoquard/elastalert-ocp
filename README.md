@@ -9,7 +9,7 @@ $ oc project openshift-elastalert
 #we need to copy this secret to access elasticsearch from elastalert
 $ oc get secret elasticsearch -n openshift-logging -o yaml --export | oc apply -n openshift-elastalert -f -
 
-$ wget https://raw.githubusercontent.com/jstakun/elastalert-ocp/master/elastalert-ocp.yaml
+$ wget https://raw.githubusercontent.com/jstakun/elastalert-ocp/ocp-4.5%2B/elastalert-ocp.yaml
 #this commands will pull images from quay.io registry, make sure to whitelist quay.io in your cluster following the docs: https://docs.openshift.com/container-platform/4.4/openshift_images/image-configuration.html#images-configuration-insecure_image-configuration
 $ oc create -f elastalert-ocp.yaml
 
