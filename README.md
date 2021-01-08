@@ -20,7 +20,7 @@ $ oc edit configmap cm-config
    es_bearer: <ELASTALERT_SA_TOKEN>
    ...
 ```
-Now you need to assign elasticsearch admin role to elastalert service account. Unfortunetaly I don't know the way to do it in persistent way. Remember each time elsticsearch pod will be restarted you'll need to repeat the steps below, otherwise you'll see 403 errors in elastalert pod.
+Now you need to assign elasticsearch admin role to elastalert service account. As of now I don't know the way to do it in persistent wayhence each time elasticsearch pod will be restarted you'll need to repeat the steps below, otherwise you'll see 403 errors in elastalert pod.
 
 ```
 $ oc project openshift-logging
