@@ -23,9 +23,9 @@ $ oc edit configmap cm-config
 Now you need to assign elasticsearch admin role to elastalert service account. Unfortunetaly I don't know the way to do it in persistent way. Remember each time elsticsearch pod will be restarted you'll need to repeat the steps below, otherwise you'll see 403 errors in elastalert pod.
 
 ```
-$oc project openshift-logging
+$ oc project openshift-logging
 #repeat this step in all elasticsearch pods
-$oc rsh elasticsearch-cdm-luzbzv0n-1-58b4f47b4-g4tfc
+$ oc rsh elasticsearch-cdm-luzbzv0n-1-58b4f47b4-g4tfc
 
 sh-4.2$ vi sgconfig/roles_mapping.yml
    ...
@@ -37,7 +37,7 @@ sh-4.2$ vi sgconfig/roles_mapping.yml
 sh-4.2$ es_seed_acl
 ```
 
-Verify if it is up and running:
+Verify both pods are up and running:
 ```
 $ oc get pods | grep Running
 elastalert-ocp-1-vmm7d    1/1     Running     0          4m32s
