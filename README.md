@@ -3,17 +3,39 @@ Run [Elastalert](https://github.com/Yelp/elastalert) in Openshift Container Plat
 
 Run below commands as **cluster-admin** user
 ```
-oc adm new-project openshift-elastalert
-oc project openshift-elastalert
+$ oc adm new-project openshift-elastalert
+$ oc project openshift-elastalert
 
 #we need to copy this secret to access elasticsearch from elastalert
-oc get secret elasticsearch -n openshift-logging -o yaml --export | oc apply -n openshift-elastalert -f -
+$ oc get secret elasticsearch -n openshift-logging -o yaml --export | oc apply -n openshift-elastalert -f -
 
-wget https://raw.githubusercontent.com/jstakun/elastalert-ocp/master/elastalert-ocp.yaml
+$ wget https://raw.githubusercontent.com/jstakun/elastalert-ocp/master/elastalert-ocp.yaml
 #this commands will pull images from quay.io registry, make sure to whitelist quay.io in your cluster following the docs: https://docs.openshift.com/container-platform/4.4/openshift_images/image-configuration.html#images-configuration-insecure_image-configuration
-oc create -f elastalert-ocp.yaml
+$ oc create -f elastalert-ocp.yaml
 ```
-This should provision for you sample fully functional elastalert pod with fake smtp mail server pod. 
+#we need to get elastalert service account token and paste it to cm-config es_bearer variable value
+$ oc sa get-token elastalert 
+$ oc edit configmap cm-config
+   ...
+   es_bearer: <ELASTALERT_SA_TOKEN>
+   ...
+```
+Now you need to assign elasticsearch admin role to elastalert service account. Unfortunetaly I don't know the way to do it in persistent way. Remember each time elsticsearch pod will be restarted you'll need to repeat the steps below, otherwise you'll see 403 errors in elastalert pod.
+
+```
+$oc project openshift-logging
+#repeat this step in all elasticsearch pods
+$oc rsh elasticsearch-cdm-luzbzv0n-1-58b4f47b4-g4tfc
+
+sh-4.2$ vi sgconfig/roles_mapping.yml
+   ...
+   sg_role_admin:
+     users:
+       - 'CN=system.admin,OU=OpenShift,O=Logging'
+       - 'system:serviceaccount:openshift-elastalert:elastalert'
+   ...
+sh-4.2$ es_seed_acl
+```
 
 Verify if it is up and running:
 ```

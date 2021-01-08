@@ -309,8 +309,11 @@ items:
 
       # The secrets from the curator must be mounted!
       ca_certs: /etc/es/keys/admin-ca
-      client_cert: /etc/es/keys/admin-cert
-      client_key: /etc/es/keys/admin-key
+      #client_cert: /etc/es/keys/admin-cert
+      #client_key: /etc/es/keys/admin-key
+
+      # paste here value of command: 'oc sa get-token elastalert'
+      es_bearer: <ELASTALERT_SA_TOKEN>
 
       # smpt settings
       email: 'admin@localhost'
@@ -325,7 +328,7 @@ items:
     my-rules.yaml: |
       me: example alert
       type: frequency
-      index: project.hello-world.*
+      index: app-*
       num_events: 1
 
       timeframe:
@@ -353,6 +356,10 @@ items:
   kind: ConfigMap
   metadata:
     name: rules-alerting
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: elastalert
 kind: List
 metadata:
   resourceVersion: ""
