@@ -6,21 +6,21 @@ Run below commands as **cluster-admin** user
 $ oc adm new-project openshift-elastalert
 $ oc project openshift-elastalert
 
-#we need to copy this secret to access elasticsearch from elastalert
+#copy this secret to access Elasticsearch pods from elastalert
 $ oc get secret elasticsearch -n openshift-logging -o yaml --export | oc apply -n openshift-elastalert -f -
 
 $ wget https://raw.githubusercontent.com/jstakun/elastalert-ocp/ocp-4.5%2B/elastalert-ocp.yaml
 #this commands will pull images from quay.io registry, make sure to whitelist quay.io in your cluster following the docs: https://docs.openshift.com/container-platform/4.4/openshift_images/image-configuration.html#images-configuration-insecure_image-configuration
 $ oc create -f elastalert-ocp.yaml
 
-#we need to get elastalert service account token and paste it to cm-config es_bearer variable value
+#get elastalert service account token and paste it to cm-config es_bearer variable value
 $ oc sa get-token elastalert 
 $ oc edit configmap config-cm
    ...
    es_bearer: <ELASTALERT_SA_TOKEN>
    ...
 ```
-Now you need to assign elasticsearch admin role to elastalert service account. As of now I don't know the way to do it in persistent wayhence each time elasticsearch pod will be restarted you'll need to repeat the steps below, otherwise you'll see 403 errors in elastalert pod.
+Now you need to assign Elasticsearch admin role to elastalert service account. As of now I don't know the way to do it in persistent way hence each time Elasticsearch pod will be restarted you'll need to repeat the steps below, otherwise you'll see 403 errors in elastalert pod.
 
 ```
 $ oc project openshift-logging
