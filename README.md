@@ -1,6 +1,8 @@
 # elastalert-ocp
 Run [Elastalert](https://github.com/Yelp/elastalert) in Openshift Container Platform 4.x
 
+This instructions are valid for Openshift Container Platform 4.4 or below. If you are running OpenShift Container Platfrom 4.5 or above please switch to [ocp-4.5+ branch](https://github.com/jstakun/elastalert-ocp/tree/ocp-4.5+)
+
 Run below commands as **cluster-admin** user
 ```
 oc adm new-project openshift-elastalert
