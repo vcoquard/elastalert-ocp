@@ -1,14 +1,14 @@
 # elastalert-ocp
 Run [Elastalert](https://github.com/Yelp/elastalert) in Openshift Container Platform 4.x
 
-This instructions are valid for Openshift Container Platform 4.4 or below. If you are running OpenShift Container Platfrom 4.5 or above please switch to [ocp-4.5+ branch](https://github.com/jstakun/elastalert-ocp/tree/ocp-4.5+)
+This instructions are valid for Openshift Container Platform 4.4 or below. If you are running OpenShift Container Platfrom 4.5 or above please switch to [ocp-4.5+ branch](https://github.com/jstakun/elastalert-ocp/tree/ocp-4.5+).
 
 Run below commands as **cluster-admin** user
 ```
 oc adm new-project openshift-elastalert
 oc project openshift-elastalert
 
-#we need to copy this secret to access elasticsearch from elastalert
+#copy this secret to access Elasticsearch pods from elastalert
 oc get secret elasticsearch -n openshift-logging -o yaml --export | oc apply -n openshift-elastalert -f -
 
 wget https://raw.githubusercontent.com/jstakun/elastalert-ocp/master/elastalert-ocp.yaml
