@@ -24,9 +24,10 @@ Now you need to assign Elasticsearch admin role to elastalert service account. A
 
 ```
 $ oc project openshift-logging
-#repeat this step in all elasticsearch pods
-$ oc rsh elasticsearch-cdm-luzbzv0n-1-58b4f47b4-g4tfc
+$ ES_PODS=(oc get pods | grep elasticsearch-cdm | awk '{print $1}')
+$ for ES_POD in $ES_PODS; do oc rsh $ES_POD; done
 
+#repeat this step in all elasticsearch pods
 sh-4.2$ vi sgconfig/roles_mapping.yml
    ...
    sg_role_admin:
@@ -37,8 +38,9 @@ sh-4.2$ vi sgconfig/roles_mapping.yml
 sh-4.2$ es_seed_acl
 ```
 
-Verify both pods are up and running:
+Verify both elastalert pods are up and running:
 ```
+$ oc project openshift-elastalert
 $ oc get pods | grep Running
 elastalert-ocp-1-6nk5k    1/1     Running     0          4m32s
 mailman-1-fhsnq           1/1     Running     0          4m34s
