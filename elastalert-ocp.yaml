@@ -326,9 +326,9 @@ items:
 - apiVersion: v1
   data:
     my-rules.yaml: |
-      name: example alert
+      name: Failed Login Alert
       type: frequency
-      index: app-*
+      index: infra*
       num_events: 1
 
       timeframe:
@@ -337,7 +337,7 @@ items:
       filter:
       - query:
           query_string:
-            query: "message: welcome-php"
+            query: "kubernetes.namespace_name:openshift-authentication AND message:*failed for*"
 
       #SMTP
       smtp_host: 'mailman'
