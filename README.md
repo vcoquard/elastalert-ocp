@@ -5,41 +5,65 @@ This instructions are valid for Openshift Container Platform 4.4 or below. If yo
 
 Run below commands as **cluster-admin** user
 ```
-oc adm new-project openshift-elastalert
-oc project openshift-elastalert
+$ oc adm new-project openshift-elastalert
+$ oc project openshift-elastalert
 
 #copy this secret to access Elasticsearch pods from elastalert
 oc get secret elasticsearch -n openshift-logging -o yaml --export | oc apply -n openshift-elastalert -f -
 
-wget https://raw.githubusercontent.com/jstakun/elastalert-ocp/master/elastalert-ocp.yaml
+$ wget https://raw.githubusercontent.com/jstakun/elastalert-ocp/ocp-4.5%2B/elastalert-ocp.yaml
 #this commands will pull images from quay.io registry, make sure to whitelist quay.io in your cluster following the docs: https://docs.openshift.com/container-platform/4.4/openshift_images/image-configuration.html#images-configuration-insecure_image-configuration
-oc create -f elastalert-ocp.yaml
-```
-This should provision for you sample fully functional elastalert pod with fake smtp mail server pod. 
+$ oc create -f elastalert-ocp.yaml
 
-Verify if it is up and running:
+#get elastalert service account token and paste it to cm-config es_bearer variable value
+$ oc sa get-token elastalert 
+$ oc edit configmap config-cm
+   ...
+   es_bearer: <ELASTALERT_SA_TOKEN>
+   ...
 ```
+Now you need to assign Elasticsearch admin role to elastalert service account. As of now I don't know the way to do it in persistent way hence each time Elasticsearch pod will be restarted you'll need to repeat the steps below, otherwise you'll see 403 errors in elastalert pod.
+
+```
+$ oc project openshift-logging
+$ ES_PODS=(oc get pods | grep elasticsearch-cdm | awk '{print $1}')
+$ for ES_POD in $ES_PODS; do oc rsh $ES_POD; done
+
+#repeat this step in all elasticsearch pods
+sh-4.2$ vi sgconfig/roles_mapping.yml
+   ...
+   sg_role_admin:
+     users:
+       - 'CN=system.admin,OU=OpenShift,O=Logging'
+       - 'system:serviceaccount:openshift-elastalert:elastalert'
+   ...
+sh-4.2$ es_seed_acl
+```
+
+Verify both elastalert pods are up and running:
+```
+$ oc project openshift-elastalert
 $ oc get pods | grep Running
-elastalert-ocp-1-vmm7d    1/1     Running     0          4m32s
+elastalert-ocp-1-6nk5k    1/1     Running     0          4m32s
 mailman-1-fhsnq           1/1     Running     0          4m34s
 
-$ oc logs elastalert-ocp-1-vmm7d
-Elastic Version: 5.6.13
-Reading Elastic 5 index mappings:
-Reading index mapping 'es_mappings/5/silence.json'
-Reading index mapping 'es_mappings/5/elastalert_status.json'
-Reading index mapping 'es_mappings/5/elastalert.json'
-Reading index mapping 'es_mappings/5/past_elastalert.json'
-Reading index mapping 'es_mappings/5/elastalert_error.json'
-New index elastalert_status created
-Done!
+$ oc logs -f elastalert-ocp-1-6nk5k
+Checking Elastic Version
+Elastic Version: 6.8.1
+Reading Elastic 6 index mappings:
+Reading index mapping 'es_mappings/6/silence.json'
+Reading index mapping 'es_mappings/6/elastalert_status.json'
+Reading index mapping 'es_mappings/6/elastalert.json'
+Reading index mapping 'es_mappings/6/past_elastalert.json'
+Reading index mapping 'es_mappings/6/elastalert_error.json'
+Index elastalert_status already exists. Skipping index creation.
 1 rules loaded
 INFO:elastalert:Starting up
 INFO:elastalert:Disabled rules are: []
-INFO:elastalert:Sleeping for 59.999924 seconds
-INFO:elastalert:Queried rule rules/my-rules from 2019-09-03 00:00 UTC to 2019-09-03 00:15 UTC: 0 / 0 hits
+INFO:elastalert:Sleeping for 59.999889 seconds
+INFO:elastalert:Queried rule rules/my-rules from 2021-01-08 00:00 UTC to 2021-01-08 00:15 UTC: 0 / 0 hits
 ...
-INFO:elastalert:Ran rules/my-rules from 2019-09-03 00:00 UTC to 2019-09-03 12:35 UTC: 0 query hits (0 already seen), 0 matches, 0 alerts sent
+INFO:elastalert:Ran rules/my-rules from 2021-01-08 00:00 UTC to 2021-01-08 15:43 UTC: 0 query hits (0 already seen), 0 matches, 0 alerts sent
 ```
 
 Now you can adjust configuration to your needs:

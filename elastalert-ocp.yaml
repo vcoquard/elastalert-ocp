@@ -309,8 +309,11 @@ items:
 
       # The secrets from the curator must be mounted!
       ca_certs: /etc/es/keys/admin-ca
-      client_cert: /etc/es/keys/admin-cert
-      client_key: /etc/es/keys/admin-key
+      #client_cert: /etc/es/keys/admin-cert
+      #client_key: /etc/es/keys/admin-key
+
+      # paste here value of command: 'oc sa get-token elastalert'
+      es_bearer: <ELASTALERT_SA_TOKEN>
 
       # smpt settings
       email: 'admin@localhost'
@@ -323,9 +326,9 @@ items:
 - apiVersion: v1
   data:
     my-rules.yaml: |
-      me: example alert
+      name: Failed Login Alert
       type: frequency
-      index: project.hello-world.*
+      index: infra*
       num_events: 1
 
       timeframe:
@@ -334,7 +337,7 @@ items:
       filter:
       - query:
           query_string:
-            query: "message: welcome-php"
+            query: "kubernetes.namespace_name:openshift-authentication AND message:*failed for*"
 
       #SMTP
       smtp_host: 'mailman'
@@ -353,6 +356,10 @@ items:
   kind: ConfigMap
   metadata:
     name: rules-alerting
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: elastalert
 kind: List
 metadata:
   resourceVersion: ""
