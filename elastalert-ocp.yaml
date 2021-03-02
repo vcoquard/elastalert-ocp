@@ -45,9 +45,9 @@ items:
           terminationMessagePolicy: File
           volumeMounts:
           - mountPath: /opt/elastalert/config
-            name: elastalert-ocp-volume-1
+            name: config
           - mountPath: /opt/elastalert/rules
-            name: elastalert-ocp-volume-2
+            name: rules
           - mountPath: /etc/es/keys
             name: elasticsearch
             readOnly: true
@@ -60,11 +60,11 @@ items:
         - configMap:
             defaultMode: 420
             name: config-cm
-          name: elastalert-ocp-volume-1
+          name: config
         - configMap:
             defaultMode: 420
             name: rules-alerting
-          name: elastalert-ocp-volume-2
+          name: rules
         - name: elasticsearch
           secret:
             defaultMode: 420
