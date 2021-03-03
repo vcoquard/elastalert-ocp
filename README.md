@@ -9,7 +9,7 @@ $ oc adm new-project openshift-elastalert
 $ oc project openshift-elastalert
 
 #copy this secret to access Elasticsearch pods from elastalert
-oc get secret elasticsearch -n openshift-logging -o yaml --export | oc apply -n openshift-elastalert -f -
+$ oc get secret elasticsearch -n openshift-logging -o yaml --export | oc apply -n openshift-elastalert -f -
 
 $ wget https://raw.githubusercontent.com/jstakun/elastalert-ocp/master/elastalert-ocp.yaml
 #this commands will pull images from quay.io registry, make sure to whitelist quay.io in your cluster following the docs: https://docs.openshift.com/container-platform/latest/openshift_images/image-configuration.html#images-configuration-insecure_image-configuration
