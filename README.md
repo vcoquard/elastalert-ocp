@@ -29,7 +29,7 @@ $ oc project openshift-logging
 $ ES_PODS=(oc get pods | grep elasticsearch-cdm | awk '{print $1}')
 $ for ES_POD in $ES_PODS; do oc rsh $ES_POD; done
 
-#repeat this step in all elasticsearch pods
+#repeat these steps in each elasticsearch pod
 sh-4.2$ vi sgconfig/roles_mapping.yml
    ...
    sg_role_admin:
